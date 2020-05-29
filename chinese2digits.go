@@ -47,6 +47,26 @@ var PURE_DIGITS_RE, regError3 = regexp.Compile(`[0-9]`)
 
 var takingDigitsRERule, regError4 = regexp.Compile(`(?:\+|\-){0,1}\d+(?:\.\d+){0,1}(?:\%){0,1}|(?:\+|\-){0,1}\.\d+(?:\%){0,1}`)
 
+type Result struct {
+	InputText          string
+	ReplacedText       string
+	CHNumberStringList []string
+	DigitsStringList   []string
+}
+
+func (r *Result) GetDigitsAsInt() []int {
+	arr := make([]int, 0, len(r.DigitsStringList))
+	for _, s := range r.DigitsStringList {
+		i, _ := strconv.Atoi(s)
+		arr = append(arr, i)
+	}
+	return arr
+}
+
+func (r *Result) String() string {
+	return fmt.Sprintf("{ InputText = %s, ReplacedText = %s, CHNumberStringList = %s, DigitsStringList = %s }", r.InputText, r.ReplacedText, r.CHNumberStringList, r.DigitsStringList)
+}
+
 func checkChineseNumberReasonable(chNumber string, opt ...bool) []string {
 
 	digitsNumberSwitch := false
@@ -657,7 +677,7 @@ func checkNumberSeg(chineseNumberList []string) []string {
 }
 
 // TakeChineseNumberFromString 将句子中的汉子数字提取的整体函数
-func TakeChineseNumberFromString(chTextString string, opt ...interface{}) interface{} {
+func TakeChineseNumberFromString(chTextString string, opt ...interface{}) *Result {
 
 	CHNumberStringList := []string{}
 
@@ -762,17 +782,15 @@ func TakeChineseNumberFromString(chTextString string, opt ...interface{}) interf
 		}
 
 	}
-	finalResult := map[string]interface{}{
-		"inputText":          originText,
-		"replacedText":       replacedText,
-		"CHNumberStringList": CHNumberStringList,
-		"digitsStringList":   digitsStringList,
+	return &Result{
+		InputText:          originText,
+		ReplacedText:       replacedText,
+		CHNumberStringList: CHNumberStringList,
+		DigitsStringList:   digitsStringList,
 	}
-	return finalResult
-
 }
 
-func TakeNumberFromString(chTextString string, opt ...interface{}) interface{} {
+func TakeNumberFromString(chTextString string, opt ...interface{}) *Result {
 
 	//默认参数设置
 	if len(opt) > 4 {
